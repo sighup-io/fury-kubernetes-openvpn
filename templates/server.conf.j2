@@ -1,0 +1,25 @@
+port {{ openvpn_port }}
+proto udp
+dev tun
+ca {{ openvpn_certs_dir }}/ca.crt
+cert {{ openvpn_certs_dir }}/server.crt
+key {{ openvpn_certs_dir }}/server.key
+dh {{ openvpn_certs_dir }}/dhp{{ openvpn_dhparam_bits }}.pem
+cipher AES-256-CBC
+auth SHA512
+topology subnet
+server {{ openvpn_subnet_network }} {{ openvpn_subnet_netmask }}
+push "redirect-gateway def1 bypass-dhcp"
+{% for dns in openvpn_dns_servers %}
+push "dhcp-option DNS {{ dns }}"
+{% endfor %}
+ifconfig-pool-persist ipp.txt
+keepalive 10 120
+comp-lzo
+persist-key
+persist-tun
+status openvpn-status.log
+verb 3
+explicit-exit-notify 1
+tls-server
+tls-auth {{ openvpn_certs_dir }}/ta.key 0

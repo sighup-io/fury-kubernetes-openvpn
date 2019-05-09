@@ -1,0 +1,88 @@
+- name: Install OpenVPN packages
+  apt:
+    name:
+      - openvpn
+      - iptables-persistent
+    state: latest
+    update_cache: yes
+
+- name: Ensure iptables_nat module is loaded
+  modprobe:
+    name: iptable_nat
+    state: present
+
+- name: Ensure that IP forwarding is enabled
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Ensure masquerading is enabled on main network interface
+  iptables:
+    table: nat
+    chain: POSTROUTING
+    out_interface: "{{ ansible_default_ipv4.interface }}"
+    jump: MASQUERADE
+    state: present
+
+- name: Ensure OpenVPN certificates directory exists
+  file:
+    name: "{{ openvpn_certs_dir }}"
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: Build Diffie-Hellman parameters file
+  shell: "openssl genpkey -genparam -algorithm DH -out {{ openvpn_certs_dir}}/dhp{{ openvpn_dhparam_bits }}.pem -pkeyopt dh_paramgen_prime_len:{{ openvpn_dhparam_bits }}"
+  args:
+    creates: "{{ openvpn_certs_dir }}/dhp{{ openvpn_dhparam_bits }}.pem"
+
+- name: Ensure OpenVPN certificates have the correct permissions
+  file:
+    name: "/etc/openvpn/pki/{{ item }}"
+    owner: root
+    group: root
+    mode: 0640
+    state: file
+  with_items:
+    - "ca.crt"
+    - "ca.key"
+    - "dhp{{ openvpn_dhparam_bits }}.pem"
+    - "server.crt"
+    - "server.key"
+    - "ta.key"
+
+- name: Add OpenVPN server configuration
+  template:
+    src: server.conf.j2
+    dest: "{{ openvpn_config_dir }}/server.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart OpenVPN
+
+- name: Ensure OpenVPN service started
+  systemd:
+    name: openvpn@server
+    daemon_reload: yes
+    enabled: yes
+    state: started
+
+- name: Generate OpenVPN clients configuration
+  template:
+    src: client.conf.j2
+    dest: "{{ openvpn_config_dir }}/client/{{ item }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ openvpn_users }}"
+
+- name: Fetch OpenVPN clients configuration
+  fetch:
+    src: "{{ openvpn_config_dir }}/client/{{ item }}.conf"
+    dest: "{{ openvpn_client_config_local_dir }}/{{ item }}.conf"
+    flat: yes
+  with_items: "{{ openvpn_users }}"

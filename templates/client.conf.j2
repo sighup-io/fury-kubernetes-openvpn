@@ -1,0 +1,25 @@
+client
+dev tun
+proto udp
+remote-random
+{% for remote in openvpn_remote_servers %}
+remote {{ remote }} {{ openvpn_port }}
+{% endfor %}
+ca _certs/ca.crt
+cert _certs/client-{{ item }}.crt
+key _certs/client-{{ item }}.key
+remote-cert-tls server
+tls-version-min 1.2
+tls-cipher TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
+cipher AES-256-CBC
+auth SHA512
+resolv-retry infinite
+auth-retry none
+nobind
+persist-key
+persist-tun
+ns-cert-type server
+comp-lzo
+verb 3
+tls-client
+tls-auth _certs/ta.key 1
