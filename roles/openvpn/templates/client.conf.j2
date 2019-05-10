@@ -5,7 +5,7 @@ remote-random
 {% for remote in openvpn_remote_servers %}
 remote {{ remote }} {{ openvpn_port }}
 {% endfor %}
-ca _certs/ca.crt
+ca ./ca.crt
 cert ./client.crt
 key ./client.key
 remote-cert-tls server
