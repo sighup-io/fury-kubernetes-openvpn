@@ -6,8 +6,8 @@ remote-random
 remote {{ remote }} {{ openvpn_port }}
 {% endfor %}
 ca _certs/ca.crt
-cert _certs/client-{{ item }}.crt
-key _certs/client-{{ item }}.key
+cert ./client.crt
+key ./client.key
 remote-cert-tls server
 tls-version-min 1.2
 tls-cipher TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
@@ -22,4 +22,4 @@ ns-cert-type server
 comp-lzo
 verb 3
 tls-client
-tls-auth _certs/ta.key 1
+tls-auth ./ta.key 1

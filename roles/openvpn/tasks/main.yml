@@ -83,6 +83,6 @@
 - name: Fetch OpenVPN clients configuration
   fetch:
     src: "{{ openvpn_config_dir }}/client/{{ item }}.conf"
-    dest: "{{ openvpn_client_config_local_dir }}/{{ item }}.conf"
+    dest: "{{ openvpn_client_config_local_dir }}/{{ item }}/{{ item }}.conf"
     flat: yes
   with_items: "{{ openvpn_users }}"
