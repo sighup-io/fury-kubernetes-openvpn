@@ -2,6 +2,9 @@ openvpn_config_dir: "/etc/openvpn"
 openvpn_certs_dir: "{{ openvpn_config_dir }}/pki"
 openvpn_dns_servers: []
 openvpn_port: 1194
+openvpn_routes:
+  - network: "{{ ansible_default_ipv4.network }}"
+    netmask: "{{ ansible_default_ipv4.netmask }}"
 openvpn_subnet_network: "172.16.0.0"
 openvpn_subnet_netmask: "255.255.255.0"
 openvpn_dhparam_bits: 2048
