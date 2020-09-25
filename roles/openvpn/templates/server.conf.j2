@@ -9,7 +9,9 @@ cipher AES-256-CBC
 auth SHA512
 topology subnet
 server {{ openvpn_subnet_network }} {{ openvpn_subnet_netmask }}
-push "redirect-gateway def1 bypass-dhcp"
+{% for route in openvpn_routes %}
+push "route {{ route.network }} {{ route.netmask }}"
+{% endfor %}
 {% for dns in openvpn_dns_servers %}
 push "dhcp-option DNS {{ dns }}"
 {% endfor %}
