@@ -27,6 +27,9 @@
     jump: MASQUERADE
     state: present
 
+- name: Ensure masquerading persists across reboots
+  shell: "netfilter-persistent save"
+
 - name: Ensure OpenVPN certificates directory exists
   file:
     name: "{{ openvpn_certs_dir }}"
