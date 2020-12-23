@@ -2,6 +2,7 @@ port {{ openvpn_port }}
 proto udp
 dev tun
 ca {{ openvpn_certs_dir }}/ca.crt
+crl-verify {{ openvpn_certs_dir }}/ca.crl
 cert {{ openvpn_certs_dir }}/server.crt
 key {{ openvpn_certs_dir }}/server.key
 dh {{ openvpn_certs_dir }}/dhp{{ openvpn_dhparam_bits }}.pem
@@ -9,9 +10,13 @@ cipher AES-256-CBC
 auth SHA512
 topology subnet
 server {{ openvpn_subnet_network }} {{ openvpn_subnet_netmask }}
+{% if openvpn_routes is defined and openvpn_routes|length > 0 %}
 {% for route in openvpn_routes %}
 push "route {{ route.network }} {{ route.netmask }}"
 {% endfor %}
+{% else %}
+push "redirect-gateway def1 bypass-dhcp"
+{% endif %}
 {% for dns in openvpn_dns_servers %}
 push "dhcp-option DNS {{ dns }}"
 {% endfor %}
