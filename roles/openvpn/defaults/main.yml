@@ -1,6 +1,7 @@
 openvpn_config_dir: "/etc/openvpn"
 openvpn_certs_dir: "{{ openvpn_config_dir }}/pki"
 openvpn_dns_servers: []
+openvpn_dns_domains: []
 openvpn_port: 1194
 openvpn_routes:
   - network: "{{ ansible_default_ipv4.network }}"

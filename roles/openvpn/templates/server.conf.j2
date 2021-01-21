@@ -20,6 +20,9 @@ push "redirect-gateway def1 bypass-dhcp"
 {% for dns in openvpn_dns_servers %}
 push "dhcp-option DNS {{ dns }}"
 {% endfor %}
+{% for domain in openvpn_dns_domains %}
+push "dhcp-option DOMAIN {{ domain }}"
+{% endfor %}
 ifconfig-pool-persist ipp.txt
 keepalive 10 120
 comp-lzo
